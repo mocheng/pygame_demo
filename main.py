@@ -4,8 +4,17 @@ from enum import Enum
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
+"""
+color constants
+"""
 COLOR_BACKGROUND = (255, 255, 255)
 COLOR_WARNING = (255, 0, 0)
+
+"""
+custom event
+"""
+class Event(Enum):
+    ADD_TURTLE = pygame.USEREVENT + 1
 
 
 class PlayerStatus(Enum):
@@ -26,7 +35,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        image = pygame.transform.scale(pygame.image.load('./wario.png'), (Player.SPRITE_SIZE, Player.SPRITE_SIZE))
+        image = pygame.transform.scale(pygame.image.load('./resources/wario.png'), (Player.SPRITE_SIZE, Player.SPRITE_SIZE))
         # image.set_colorkey(image.get_at((1, 1)))
         self.image = image
 
@@ -122,6 +131,9 @@ def main():
 
     banner = Banner()
 
+    pygame.time.set_timer(Event.ADD_TURTLE, 200)
+    turtle_born_count_down = 0
+
     running = True
     while running:
         clock.tick(60)
@@ -133,12 +145,17 @@ def main():
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
                 player.jump()
+            elif event.type == Event.ADD_TURTLE:
+                if turtle_born_count_down == 0:
+                    if random.randint(1, 5) < 2:
+                        all_turtles.add(Turtle())
+                        turtle_born_count_down = 3 # avoid turtles too close
+                else:
+                    turtle_born_count_down -= 1
+
 
         screen.fill(COLOR_BACKGROUND)
         pygame.draw.line(screen, (0,0,0), (0, SCREEN_HEIGHT/2), (SCREEN_WIDTH, SCREEN_HEIGHT/2), 2)
-
-        if random.randint(0, 50) < 1:
-            all_turtles.add(Turtle())
 
         for sprite in all_turtles:
             if sprite.is_over():
@@ -156,7 +173,7 @@ def main():
         banner.update()
         banner.draw(screen)
 
-        pygame.display.flip()
+        pygame.display.update()
 
     pygame.quit()
 
