@@ -4,64 +4,65 @@ from enum import Enum
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-COLOR_WHITE = (255, 255, 255)
-
-def load_image(image_path):
-    image = pygame.image.load('./dino.png').convert()
-    return image, image.get_rect()
+COLOR_BACKGROUND = (255, 255, 255)
+COLOR_WARNING = (255, 0, 0)
 
 
-class DinoStatus(Enum):
+class PlayerStatus(Enum):
     Running = 1
     Jumping = 2
     Dropping = 3
 
-class Dino(pygame.sprite.Sprite):
-    MIN_TOP = 150
+
+class Player(pygame.sprite.Sprite):
+    """
+    Player that is controlled by human.
+    For the time being, the constume is wario.
+    """
+    MIN_TOP = 120
     SPRITE_SIZE = 80
     JUMP_SPEED = 10
 
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        image = pygame.transform.scale(pygame.image.load('./wario.png'), (Dino.SPRITE_SIZE, Dino.SPRITE_SIZE))
-        #image.set_colorkey(image.get_at((1, 1)))
+        image = pygame.transform.scale(pygame.image.load('./wario.png'), (Player.SPRITE_SIZE, Player.SPRITE_SIZE))
+        # image.set_colorkey(image.get_at((1, 1)))
         self.image = image
 
         self.rect = self.image.get_rect()
         self.init_y = SCREEN_HEIGHT/2 - self.rect.height
         self.rect.move_ip(200, self.init_y)
 
-
-        self.status = DinoStatus.Running
+        self.status = PlayerStatus.Running
         self.altitude = 0
 
     def update(self):
-        if self.status == DinoStatus.Running:
+        if self.status == PlayerStatus.Running:
             pass
-        elif self.status == DinoStatus.Jumping:
-            if self.rect.top <= Dino.MIN_TOP:
+        elif self.status == PlayerStatus.Jumping:
+            if self.rect.top <= Player.MIN_TOP:
                 self.drop()
             else:
-                self.rect.move_ip(0, -Dino.JUMP_SPEED)
-        else: # Dropping
-             if self.rect.top >= self.init_y:
+                self.rect.move_ip(0, -Player.JUMP_SPEED)
+        else:  # Dropping
+            if self.rect.top >= self.init_y:
                 self.run()
-             else:
-                self.rect.move_ip(0, Dino.JUMP_SPEED)
-
+            else:
+                self.rect.move_ip(0, Player.JUMP_SPEED)
 
     def jump(self):
-        if self.status == DinoStatus.Running:
-            self.status = DinoStatus.Jumping
+        if self.status == PlayerStatus.Running:
+            self.status = PlayerStatus.Jumping
 
     def drop(self):
-        if self.status == DinoStatus.Jumping:
-            self.status = DinoStatus.Dropping
+        if self.status == PlayerStatus.Jumping:
+            self.status = PlayerStatus.Dropping
 
     def run(self):
-         if self.status == DinoStatus.Dropping:
-            self.status = DinoStatus.Running
+        if self.status == PlayerStatus.Dropping:
+            self.status = PlayerStatus.Running
+
 
 class Turtle(pygame.sprite.Sprite):
     SIZE = 30
@@ -76,7 +77,6 @@ class Turtle(pygame.sprite.Sprite):
         rect = self.image.get_rect().move(SCREEN_WIDTH, SCREEN_HEIGHT/2 - Turtle.SIZE)
         self.rect = rect
 
-
     def update(self):
         self.rect.move_ip(-10, 0)
 
@@ -84,17 +84,43 @@ class Turtle(pygame.sprite.Sprite):
         return self.rect.left < 0
 
 
+class Banner:
+    """
+    Banner to display game-over or other info.
+    """
+    def __init__(self):
+        self.basic_font = pygame.font.SysFont(None, 48)
+        self.display_count_down = 0
+
+    def update(self):
+        if self.display_count_down >= 0:
+            self.display_count_down -= 1
+
+    def draw(self, screen):
+        if self.display_count_down >= 0:
+            text = self.basic_font.render('You Crashed!', True, COLOR_WARNING)
+            text_rect = text.get_rect()
+            text_rect.centerx = screen.get_rect().centerx
+            text_rect.centery = screen.get_rect().centery
+            screen.blit(text, text_rect)
+
+    def show(self):
+        self.display_count_down = 10
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    screen.fill(COLOR_WHITE)
+    screen.fill(COLOR_BACKGROUND)
 
     clock = pygame.time.Clock()
-    dino = Dino()
-    mario = pygame.sprite.RenderPlain((dino))
+    player = Player()
+    all_players = pygame.sprite.RenderPlain((player))
 
     #all_sprites.add(Turtle())
     all_turtles = pygame.sprite.RenderPlain()
+
+    banner = Banner()
 
     running = True
     while running:
@@ -106,9 +132,9 @@ def main():
                 break
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-                dino.jump()
+                player.jump()
 
-        screen.fill(COLOR_WHITE)
+        screen.fill(COLOR_BACKGROUND)
         pygame.draw.line(screen, (0,0,0), (0, SCREEN_HEIGHT/2), (SCREEN_WIDTH, SCREEN_HEIGHT/2), 2)
 
         if random.randint(0, 50) < 1:
@@ -118,11 +144,18 @@ def main():
             if sprite.is_over():
                 all_turtles.remove(sprite)
 
-        mario.update()
-        mario.draw(screen)
+        if len(pygame.sprite.spritecollide(player, all_turtles, False)) > 0:
+            banner.show()
+
+        all_players.update()
+        all_players.draw(screen)
 
         all_turtles.update()
         all_turtles.draw(screen)
+
+        banner.update()
+        banner.draw(screen)
+
         pygame.display.flip()
 
     pygame.quit()
