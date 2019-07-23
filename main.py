@@ -79,7 +79,7 @@ class Turtle(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
 
-        image = pygame.image.load('./turtle.png')
+        image = pygame.image.load('./resources/turtle.png')
         image = pygame.transform.scale(image, (Turtle.SIZE, Turtle.SIZE))
         self.image = image
 
@@ -126,7 +126,6 @@ def main():
     player = Player()
     all_players = pygame.sprite.RenderPlain((player))
 
-    #all_sprites.add(Turtle())
     all_turtles = pygame.sprite.RenderPlain()
 
     banner = Banner()
@@ -161,7 +160,7 @@ def main():
             if sprite.is_over():
                 all_turtles.remove(sprite)
 
-        if len(pygame.sprite.spritecollide(player, all_turtles, False)) > 0:
+        if pygame.sprite.spritecollideany(player, all_turtles):
             banner.show()
 
         all_players.update()
