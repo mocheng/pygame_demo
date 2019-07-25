@@ -77,13 +77,14 @@ def main():
     pygame.init()
 
     SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), DOUBLEBUF | OPENGL)
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 
+                                     DOUBLEBUF | OPENGL)
 
-    gluPerspective(45, (SCREEN_WIDTH / SCREEN_HEIGHT), 0.1, 50.0)
+    gluPerspective(45, (SCREEN_WIDTH * 1.0/ SCREEN_HEIGHT), 0.1, 50.0)
 
-    glTranslatef(0.0, 0.0, -5)
+    glTranslatef(0.0, 0.0, -10)
 
-    glRotatef(20, 0, 0, 0)
+    #glRotatef(20, 0, 0, 0)
 
     while True:
         for event in pygame.event.get():
@@ -91,7 +92,24 @@ def main():
                 pygame.quit()
                 return
 
-        glRotate(1, 3, 1, 1)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    glTranslatef(-0.5, 0, 0)
+                if event.key == pygame.K_RIGHT:
+                    glTranslatef(0.5, 0, 0)
+                if event.key == pygame.K_UP:
+                    glTranslatef(0, 0.5, 0)
+                if event.key == pygame.K_DOWN:
+                    glTranslatef(0, -0.5, 0)
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                button1, button2, button3 = pygame.mouse.get_pressed()
+                if button1:
+                    glTranslatef(0, 0, 1.0)
+                if button3:
+                    glTranslatef(0, 0, -1.0)
+
+        #glRotate(1, 3, 1, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         Cube()
 
