@@ -1,5 +1,6 @@
 import pygame
 from pygame.locals import *
+import random
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -72,21 +73,25 @@ def Cube():
     glEnd()
 
 
-
 def main():
     pygame.init()
 
     SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),
                                      DOUBLEBUF | OPENGL)
 
     gluPerspective(45, (SCREEN_WIDTH * 1.0/ SCREEN_HEIGHT), 0.1, 50.0)
 
-    glTranslatef(0.0, 0.0, -10)
+    #glTranslatef(0.0, 0.0, -10)
+    glTranslatef(random.randrange(-5, 5), 0.0, -30)
 
     #glRotatef(20, 0, 0, 0)
 
-    while True:
+    cube_passed = False
+    x_move = 0
+    y_move = 0
+
+    while not cube_passed:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -94,13 +99,19 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    glTranslatef(-0.5, 0, 0)
+                    x_move = -0.5
                 if event.key == pygame.K_RIGHT:
-                    glTranslatef(0.5, 0, 0)
+                    x_move = 0.5
                 if event.key == pygame.K_UP:
-                    glTranslatef(0, 0.5, 0)
+                    y_move = 0.5
                 if event.key == pygame.K_DOWN:
-                    glTranslatef(0, -0.5, 0)
+                    y_move = -0.5
+
+            if event.type == pygame.KEYUP:
+                if event.key in {pygame.K_LEFT, pygame.K_RIGHT}:
+                    x_move = 0
+                if event.key in {pygame.K_UP, pygame.K_DOWN}:
+                    y_move = 0
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 button1, button2, button3 = pygame.mouse.get_pressed()
@@ -109,17 +120,36 @@ def main():
                 if button3:
                     glTranslatef(0, 0, -1.0)
 
+
         #glRotate(1, 3, 1, 1)
+
+        x = glGetDoublev(GL_MODELVIEW_MATRIX)
+        #print x[3]
+        #print type(x[3])
+        #[camera_x, camera_y, camera_z] = x[3]
+        camera_x = x[3][0]
+        camera_y = x[3][1]
+        camera_z = x[3][2]
+        #print camera_x, camera_y, camera_z
+
+        # slowly move
+        glTranslatef(x_move, y_move, 0.2)
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         Cube()
 
         pygame.display.flip()
         #pygame.display.update() # update doesn't work for OpenGL:w
 
+        if camera_z <= 0:
+            cube_passed = True
+
         pygame.time.wait(10)
 
+
 if __name__ == '__main__':
-    main()
+    for _ in range(1000):
+        main()
 
 
 
