@@ -65,6 +65,26 @@ def create_vertices(max_distance):
 
     return new_vertices
 
+ground_surfaces = (0,1,2,3)
+
+ground_vertices = (
+    (-10,-0.1,50),
+    (10,-0.1,50),
+    (-10,-0.1,-300),
+    (10,-0.1,-300),
+)
+
+def draw_ground():
+    glBegin(GL_QUADS)
+
+    x = 0
+    for v in ground_vertices:
+        x += 1
+        glColor3fv((0, 1, 1))
+        glVertex3fv(v)
+
+    glEnd()
+
 def draw_cube(vertices):
     glBegin(GL_QUADS)
     for surface in surfaces:
@@ -152,6 +172,9 @@ def main():
 
         for cube_vertices in all_cubes:
             draw_cube(cube_vertices)
+
+        # this must be last to draw
+        draw_ground()
 
         pygame.display.flip()
         #pygame.display.update() # update doesn't work for OpenGL:w
