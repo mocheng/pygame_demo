@@ -56,7 +56,16 @@ colors = (
     (0,1,1),
 )
 
-def Cube():
+def create_vertices(max_distance):
+    x_value_change = random.randrange(-10, 10)
+    y_value_change = random.randrange(-10, 10)
+    z_value_change = random.randrange(-1 * max_distance, -20)
+
+    new_vertices = tuple((v[0] + x_value_change, v[1] + y_value_change, v[2] + z_value_change) for v in vertices)
+
+    return new_vertices
+
+def draw_cube(vertices):
     glBegin(GL_QUADS)
     for surface in surfaces:
         x = 0
@@ -92,6 +101,11 @@ def main():
     x_move = 0
     y_move = 0
 
+    all_cubes = []
+
+    for x in range(75):
+        all_cubes.append(create_vertices(50))
+
     while not cube_passed:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -126,19 +140,18 @@ def main():
         #glRotate(1, 3, 1, 1)
 
         x = glGetDoublev(GL_MODELVIEW_MATRIX)
-        #print x[3]
-        #print type(x[3])
         #[camera_x, camera_y, camera_z] = x[3]
         camera_x = x[3][0]
         camera_y = x[3][1]
         camera_z = x[3][2]
-        #print camera_x, camera_y, camera_z
 
         # slowly move
         glTranslatef(x_move, y_move, 0.2)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        Cube()
+
+        for cube_vertices in all_cubes:
+            draw_cube(cube_vertices)
 
         pygame.display.flip()
         #pygame.display.update() # update doesn't work for OpenGL:w
