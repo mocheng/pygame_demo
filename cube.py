@@ -1,4 +1,5 @@
 import pygame
+import sys
 from pygame.locals import *
 import random
 
@@ -95,6 +96,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
                 return
 
             if event.type == pygame.KEYDOWN:
