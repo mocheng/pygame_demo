@@ -56,10 +56,10 @@ colors = (
     (0,1,1),
 )
 
-def create_vertices(max_distance):
+def create_vertices(max_distance=20):
     x_value_change = random.randrange(-10, 10)
     y_value_change = random.randrange(-10, 10)
-    z_value_change = random.randrange(-1 * max_distance, -20)
+    z_value_change = random.randrange(-1 * max_distance, -10)
 
     new_vertices = tuple((v[0] + x_value_change, v[1] + y_value_change, v[2] + z_value_change) for v in vertices)
 
@@ -123,8 +123,8 @@ def main():
 
     all_cubes = []
 
-    for x in range(75):
-        all_cubes.append(create_vertices(50))
+    for x in range(25):
+        all_cubes.append(create_vertices())
 
     while not cube_passed:
         for event in pygame.event.get():
@@ -166,7 +166,7 @@ def main():
         camera_z = x[3][2]
 
         # slowly move
-        glTranslatef(x_move, y_move, 0.2)
+        glTranslatef(x_move, y_move, 0.5)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -174,20 +174,24 @@ def main():
             draw_cube(cube_vertices)
 
         # this must be last to draw
-        draw_ground()
+        #draw_ground()
 
         pygame.display.flip()
         #pygame.display.update() # update doesn't work for OpenGL:w
 
-        if camera_z <= 0:
-            cube_passed = True
+        for i in range(len(all_cubes)):
+            if camera_z < all_cubes[i][0][2]:
+                # since we are actually moving viewport/camera, the distance has to be manipulated with camera_z
+                all_cubes[i] = create_vertices(max_distance=int(-1*(camera_z - 50)))
+
+        #if camera_z <= 0:
+        #    cube_passed = True
 
         pygame.time.wait(10)
 
 
 if __name__ == '__main__':
-    for _ in range(1000):
-        main()
+    main()
 
 
 
