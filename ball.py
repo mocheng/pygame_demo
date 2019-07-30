@@ -40,6 +40,6 @@ while True:
     #pygame.display.update(pygame.Rect.union(ball_rect, original_rect))
     pygame.display.update(ball_rect)
 
-
     #pygame.time.delay(16)
+
 

@@ -7,8 +7,8 @@ if not pygame.font: print('Warning, fonts disabled')
 if not pygame.mixer: print('Warning, sound disabled')
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
-#data_dir = os.path.join(main_dir, 'data')
-data_dir = main_dir
+data_dir = os.path.join(main_dir, 'resources')
+#data_dir = main_dir
 
 
 # functions to create our resources
